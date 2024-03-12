@@ -45,3 +45,18 @@ func (lru *LRUCache) MoveFront(node *Node){
   node.next = lru.Head
   lru.Head = node
 }
+
+func (lru *LRUCache) AddNode(node *Node){
+  node.next = lru.Head
+  node.prev = nil
+  lru.Head = node
+}
+
+func CreateNode(key string, value []byte)*Node{
+  return &Node{
+    key: key,
+    value: value,
+    next: nil,
+    prev: nil,
+  }
+}
