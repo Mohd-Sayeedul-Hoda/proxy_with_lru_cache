@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -31,7 +32,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request){
 
 	if present{
 		fmt.Println("serving from the cache")
-		toTheClient(w, cacheNode.Value)
+		toTheClient(w, cacheNode.Header, cacheNode.Body)
 		return
 	}
 
@@ -53,20 +54,23 @@ func handleRequest(w http.ResponseWriter, r *http.Request){
 		return
   }
 
-	lruCache.Put(targetURL.String(), resp)
+	bodyByte, err := io.ReadAll(resp.Body)
+	if err != nil{
+		http.Error(w, "Inertal server error", http.StatusInternalServerError)
+		return
+	}
+	lruCache.Put(targetURL.String(), resp.Header, bodyByte)
 	fmt.Println("all the way around from server")
-	toTheClient(w, resp)
+	toTheClient(w, resp.Header, bodyByte)
 }
 
-func toTheClient(w http.ResponseWriter,resp *http.Response){
+func toTheClient(w http.ResponseWriter,header http.Header, bodyBytes []byte){
 
-	fmt.Println(resp.Body)
-
-  for name, values := range resp.Header{
+  for name, values := range header{
     for _, value := range values{
       w.Header().Add(name, value)
     }
   }
 
-  io.Copy(w, resp.Body)
+  io.Copy(w, bytes.NewReader(bodyBytes))
 }

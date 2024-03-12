@@ -11,7 +11,8 @@ import(
 
 type Node struct{
   Key string 
-  Value *http.Response
+  Header http.Header
+  Body []byte
   prev *Node
   next *Node
 }
@@ -51,8 +52,8 @@ func (lru *LRUCache) MoveFront(node *Node){
   lru.Head = node
 }
 
-func (lru *LRUCache) Put(Key string, Value *http.Response){
-  node := CreateNode(Key, Value)
+func (lru *LRUCache) Put(key string, header http.Header, bodyBytes []byte){
+  node := CreateNode(key, header, bodyBytes)
   lru.AddNode(node)
 }
 
@@ -74,10 +75,11 @@ func (lru *LRUCache) RemoveLast(){
   lru.CurrentSize--
 }
 
-func CreateNode(Key string, Value *http.Response)*Node{
+func CreateNode(key string, header http.Header, bodyBytes []byte)*Node{
   return &Node{
-    Key: Key,
-    Value: Value,
+    Key: key,
+    Header: header,
+    Body: bodyBytes,
     next: nil,
     prev: nil,
   }
