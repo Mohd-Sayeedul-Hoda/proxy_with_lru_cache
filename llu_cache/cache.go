@@ -7,7 +7,7 @@ package cache
 
 type Node struct{
   key string 
-  value []byte
+  value []*byte
   prev *Node
   next *Node
 }
@@ -21,7 +21,7 @@ type LRUCache struct{
   CurrentSize uint64
 }
 
-func (lru *LRUCache) get(key string) ([]byte, bool){
+func (lru *LRUCache) Get(key string) ([]*byte, bool){
   node, exists:= lru.Nodes[key]
   if !exists {
     return nil, false
@@ -30,6 +30,7 @@ func (lru *LRUCache) get(key string) ([]byte, bool){
   lru.MoveFront(node)
   return node.value, true
 }
+
 
 func (lru *LRUCache) MoveFront(node *Node){
   if node == lru.Head{
@@ -47,12 +48,24 @@ func (lru *LRUCache) MoveFront(node *Node){
 }
 
 func (lru *LRUCache) AddNode(node *Node){
+  if lru.CurrentSize >= lru.Capacity{
+    lru.RemoveLast()
+  }
   node.next = lru.Head
   node.prev = nil
   lru.Head = node
+  lru.CurrentSize++
+  lru.Nodes[node.key] = node
 }
 
-func CreateNode(key string, value []byte)*Node{
+func (lru *LRUCache) RemoveLast(){
+  lru.Tail.prev.next = nil
+  delete(lru.Nodes, lru.Tail.key)
+  lru.Tail = lru.Tail.prev
+  lru.CurrentSize--
+}
+
+func CreateNode(key string, value []*byte)*Node{
   return &Node{
     key: key,
     value: value,
@@ -60,3 +73,4 @@ func CreateNode(key string, value []byte)*Node{
     prev: nil,
   }
 }
+
