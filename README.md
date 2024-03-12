@@ -9,7 +9,7 @@ using double linked list to store cache and using hashmap to access the key from
 
 *what i have to do that is important*
 
-- add http.Response in value think so
-- add to fetch all the cache after sometime automatically
-- I have to add time to live in Node
-- Have to add mutex support
+[-] add http.Response in value think so
+[ ] add to fetch all the cache after sometime automatically
+[ ] I have to add time to live in Node
+[ ] Have to add mutex support
