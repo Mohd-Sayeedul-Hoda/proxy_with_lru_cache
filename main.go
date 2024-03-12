@@ -4,11 +4,20 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"flag"
+
+	"go_web_proxy_with_cache/lru_cache/cache"
 )
 
 var defaultConfig = http.DefaultTransport
+var lruCache cache.LRUCache
 
 func main(){
+  capacity := flag.Uint64("capacity", 20, "insalize the size of cache")
+  flag.Parse()
+
+  lruCache.Nodes = make(map[string]*cache.Node)
+  lruCache.Capacity = *capacity
 
   log.Println("server running on port 8000")
   http.ListenAndServe(":8000", http.HandlerFunc(handleRequest))

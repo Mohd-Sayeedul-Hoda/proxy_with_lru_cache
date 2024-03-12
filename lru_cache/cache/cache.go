@@ -47,6 +47,11 @@ func (lru *LRUCache) MoveFront(node *Node){
   lru.Head = node
 }
 
+func (lru *LRUCache) Put(key string, value []*byte){
+  node := CreateNode(key, value)
+  lru.AddNode(node)
+}
+
 func (lru *LRUCache) AddNode(node *Node){
   if lru.CurrentSize >= lru.Capacity{
     lru.RemoveLast()
