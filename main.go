@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -25,6 +26,15 @@ func main(){
 
 func handleRequest(w http.ResponseWriter, r *http.Request){
   targetURL := r.URL
+
+	cacheNode, present := lruCache.Get(targetURL.String())
+
+	if present{
+		fmt.Println("serving from the cache")
+		toTheClient(w, cacheNode.Value)
+		return
+	}
+
   proxyRequest, err := http.NewRequest(r.Method, targetURL.String(), r.Body)
   if err != nil{
     http.Error(w, "you request can't be resolve", http.StatusInternalServerError)
@@ -40,10 +50,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request){
   resp, err := defaultConfig.RoundTrip(proxyRequest)
   if err != nil{
     http.Error(w, "error while sending request", http.StatusInternalServerError)
+		return
   }
+
+	lruCache.Put(targetURL.String(), resp)
+	fmt.Println("all the way around from server")
+	toTheClient(w, resp)
+}
+
+func toTheClient(w http.ResponseWriter,resp *http.Response){
+
   defer resp.Body.Close()
 
-  for name, values := range r.Header{
+  for name, values := range resp.Header{
     for _, value := range values{
       w.Header().Add(name, value)
     }

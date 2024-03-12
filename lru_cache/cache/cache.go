@@ -1,13 +1,17 @@
 package cache
 
+import(
+  "net/http"
+)
+
 // trying to create double linked list to store and
 // remove the node from the Node
 
 // and using map to access the linked list so
 
 type Node struct{
-  key string 
-  value []*byte
+  Key string 
+  Value *http.Response
   prev *Node
   next *Node
 }
@@ -21,14 +25,14 @@ type LRUCache struct{
   CurrentSize uint64
 }
 
-func (lru *LRUCache) Get(key string) ([]*byte, bool){
-  node, exists:= lru.Nodes[key]
+func (lru *LRUCache) Get(Key string) (*Node, bool){
+  node, exists:= lru.Nodes[Key]
   if !exists {
     return nil, false
   }
   
   lru.MoveFront(node)
-  return node.value, true
+  return node, true
 }
 
 
@@ -47,8 +51,8 @@ func (lru *LRUCache) MoveFront(node *Node){
   lru.Head = node
 }
 
-func (lru *LRUCache) Put(key string, value []*byte){
-  node := CreateNode(key, value)
+func (lru *LRUCache) Put(Key string, Value *http.Response){
+  node := CreateNode(Key, Value)
   lru.AddNode(node)
 }
 
@@ -60,20 +64,20 @@ func (lru *LRUCache) AddNode(node *Node){
   node.prev = nil
   lru.Head = node
   lru.CurrentSize++
-  lru.Nodes[node.key] = node
+  lru.Nodes[node.Key] = node
 }
 
 func (lru *LRUCache) RemoveLast(){
   lru.Tail.prev.next = nil
-  delete(lru.Nodes, lru.Tail.key)
+  delete(lru.Nodes, lru.Tail.Key)
   lru.Tail = lru.Tail.prev
   lru.CurrentSize--
 }
 
-func CreateNode(key string, value []*byte)*Node{
+func CreateNode(Key string, Value *http.Response)*Node{
   return &Node{
-    key: key,
-    value: value,
+    Key: Key,
+    Value: Value,
     next: nil,
     prev: nil,
   }

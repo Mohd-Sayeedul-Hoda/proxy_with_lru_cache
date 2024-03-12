@@ -12,3 +12,4 @@ using double linked list to store cache and using hashmap to access the key from
 - add http.Response in value think so
 - add to fetch all the cache after sometime automatically
 - I have to add time to live in Node
+- Have to add mutex support
