@@ -60,7 +60,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request){
 
 func toTheClient(w http.ResponseWriter,resp *http.Response){
 
-  defer resp.Body.Close()
+	fmt.Println(resp.Body)
 
   for name, values := range resp.Header{
     for _, value := range values{
